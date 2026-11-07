@@ -6,7 +6,7 @@ schema: "1"
 title: "Study Group Finder"
 
 
-summary: "A mobile application that helps university students find compatible study partners, organize collaborative study sessions, and improve their learning through an AI-powered study planner."
+summary: "A mobile application that helps university students find classmates taking the same courses, organize study sessions and generate AI-assisted study plans so that they can study together more effectively."
 
 members:
   - name: "Lidiya Aramde"             

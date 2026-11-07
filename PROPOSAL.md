@@ -23,7 +23,7 @@ University students often need to study with classmates to understand difficult 
 
 This problem is relevant to students at Addis Ababa University, where students may want to find classmates for specific courses, arrange group study sessions and prepare together for examinations. Study Group Finder will provide a centralized mobile platform where students can discover study groups, organize sessions and access study-planning assistance. A mobile application is suitable because students can access these features from their phones and manage their study activities conveniently.
 
-**Potential user:** Lidiya Aramde, a 4th-year Computer Science student at Addis Ababa University. In a conversation, this student explained that finding classmates who share the same course sections and compatible study schedules is difficult; coordinating study sessions across various informal Telegram group chats often leads to missed messages and disorganized meeting locations on campus. This feedback will help us understand the problem and ensure that the application addresses a real student need.
+**Potential user:** Rediet Assefa, a 4th-year Computer Science student at Addis Ababa University. In a conversation, this student explained that finding classmates who share the same course sections and compatible study schedules is difficult; coordinating study sessions across various informal Telegram group chats often leads to missed messages and disorganized meeting locations on campus. This feedback will help us understand the problem and ensure that the application addresses a real student need.
 
 ## 4. Users
 
@@ -171,6 +171,8 @@ Students will be informed that their submitted topic, available time and learnin
 
 ### Milestone 1 – End of Week 6: Screens, Navigation and State
 
+**User stories completed:** Stories 1, 2, 3, 4, and 5 (demonstrated with sample data and in-memory state).
+
 - Set up the Flutter project using the required feature-first structure.
 - Create all application screens.
 - Implement navigation using go_router.
@@ -178,22 +180,25 @@ Students will be informed that their submitted topic, available time and learnin
 - Define immutable models using Freezed.
 - Establish repository interfaces and agree on API contracts.
 - Implement the main user flows using sample data and in-memory state.
-- Demonstrate registration, profile setup, browsing study groups and creating or joining sessions.
+- Demonstrate registration (Story 1), profile setup (Story 2), browsing study groups (Story 3), and creating or joining sessions (Stories 4 and 5).
 
 ### Milestone 2 – End of Week 10: Data, Backend and Tests
 
-- Integrate Firebase Authentication and Cloud Firestore.
-- Develop and integrate the FastAPI course catalog.
-- Implement the study-group matching algorithm.
-- Implement local persistence using SharedPreferences.
-- Implement study-group and study-session operations using repositories.
-- Add the location feature with permission handling.
-- Integrate the AI Study Planner through the backend.
+**User stories completed:** Stories 1, 2, 3, 4, 5, and 6 (fully integrated with live data and local storage), and Story 7 (AI study planner backend integration).
+
+- Integrate Firebase Authentication and Cloud Firestore for user profiles, courses, and session data (Stories 1, 2, 3, 4, 5).
+- Develop and integrate the FastAPI course catalog and matching algorithm (Story 3).
+- Implement local persistence using SharedPreferences for user settings and filter preferences.
+- Implement upcoming session tracking (Story 6).
+- Add the device location feature with permission handling for meeting places (Story 4).
+- Integrate the AI Study Planner with Google Gemini through the backend (Story 7).
 - Add unit and widget tests and begin integration testing.
 
 ### Final Submission – End of Week 14
 
-- Complete the required user stories and application functionality.
+**User stories completed:** All user stories (Stories 1, 2, 3, 4, 5, 6, and 7) fully complete, polished, and tested.
+
+- Complete all user stories, edge cases, and application functionality.
 - Finish integration and resolve major bugs.
 - Complete unit, widget and integration tests, achieving at least 60% line coverage.
 - Configure development and production build flavours with separate application IDs.
