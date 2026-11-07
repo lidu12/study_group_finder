@@ -171,7 +171,7 @@ Students will be informed that their submitted topic, available time and learnin
 
 ### Milestone 1 – End of Week 6: Screens, Navigation and State
 
-**User stories completed:** Stories 1, 2, 3, 4, and 5 (demonstrated with sample data and in-memory state).
+**User stories planned for completion:** Stories 1, 2, 3, 4, and 5 (to be demonstrated with sample data and in-memory state).
 
 - Set up the Flutter project using the required feature-first structure.
 - Create all application screens.
@@ -184,7 +184,7 @@ Students will be informed that their submitted topic, available time and learnin
 
 ### Milestone 2 – End of Week 10: Data, Backend and Tests
 
-**User stories completed:** Stories 1, 2, 3, 4, 5, and 6 (fully integrated with live data and local storage), and Story 7 (AI study planner backend integration).
+**User stories planned for completion:** Stories 1, 2, 3, 4, 5, and 6 (to be fully integrated with live data and local storage), and Story 7 (AI study planner backend integration).
 
 - Integrate Firebase Authentication and Cloud Firestore for user profiles, courses, and session data (Stories 1, 2, 3, 4, 5).
 - Develop and integrate the FastAPI course catalog and matching algorithm (Story 3).
@@ -196,7 +196,7 @@ Students will be informed that their submitted topic, available time and learnin
 
 ### Final Submission – End of Week 14
 
-**User stories completed:** All user stories (Stories 1, 2, 3, 4, 5, 6, and 7) fully complete, polished, and tested.
+**User stories planned for completion:** All user stories (Stories 1, 2, 3, 4, 5, 6, and 7) fully complete, polished, and tested.
 
 - Complete all user stories, edge cases, and application functionality.
 - Finish integration and resolve major bugs.
