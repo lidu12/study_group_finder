@@ -33,19 +33,27 @@ class _SessionDetailsScreenState extends State<SessionDetailsScreen> {
   }
 
   void _toggleJoin() {
+    final currentUserName = MockSeeds.currentUser['name'] as String;
     setState(() {
       _isJoined = !_isJoined;
       if (_isJoined) {
-        _members.add(MockSeeds.currentUser['name'] as String);
+        if (!_members.contains(currentUserName)) {
+          _members.add(currentUserName);
+        }
       } else {
-        _members.remove(MockSeeds.currentUser['name'] as String);
+        _members.remove(currentUserName);
       }
+      _session['isJoined'] = _isJoined;
+      _session['memberNames'] = _members;
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_isJoined ? 'You joined this study session!' : 'You left this study session.'),
+        content: Text(_isJoined
+            ? 'You joined this study session!'
+            : 'You left this study session.'),
         backgroundColor: _isJoined ? AppColors.success : AppColors.textSecondary,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -88,7 +96,7 @@ class _SessionDetailsScreenState extends State<SessionDetailsScreen> {
               'Organized by ${_session['organizerName']}',
               style: AppTextStyles.bodySecondary,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 24), 
 
             // Info Card: Date, Time & Meeting Place
             Container(
@@ -127,9 +135,12 @@ class _SessionDetailsScreenState extends State<SessionDetailsScreen> {
                               style: AppTextStyles.body,
                             ),
                             if (_session['latitude'] != null)
-                              Text(
-                                'GPS: ${_session['latitude']}° N, ${_session['longitude']}° E',
-                                style: AppTextStyles.caption,
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Text(
+                                  'GPS: ${_session['latitude']}° N, ${_session['longitude']}° E (AAU Campus)',
+                                  style: AppTextStyles.caption.copyWith(color: AppColors.primary),
+                                ),
                               ),
                           ],
                         ),
@@ -139,14 +150,28 @@ class _SessionDetailsScreenState extends State<SessionDetailsScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 24), 
 
             // Attendees Section
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text('Attendees', style: AppTextStyles.h2),
-                Text('${_members.length} Confirmed', style: AppTextStyles.caption),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '${_members.length} Confirmed',
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -192,7 +217,7 @@ class _SessionDetailsScreenState extends State<SessionDetailsScreen> {
             ),
             const SizedBox(height: 32),
 
-            // Bottom Action Button
+            // RSVP Action Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -202,7 +227,7 @@ class _SessionDetailsScreenState extends State<SessionDetailsScreen> {
                   foregroundColor: _isJoined ? AppColors.textPrimary : Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: Text(_isJoined ? 'Leave Study Session' : 'Join Study Session'),
+                child: Text(_isJoined ? 'Leave Study Session' : 'Join Study Session (RSVP)'),
               ),
             ),
           ],
@@ -211,3 +236,4 @@ class _SessionDetailsScreenState extends State<SessionDetailsScreen> {
     );
   }
 }
+
