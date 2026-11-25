@@ -45,3 +45,4 @@ All AI-suggested code, structures, and documentation were carefully inspected, u
 
 - **Tsion Bizuayehu (`tsion875`):**  
   *"I used AI assistance to explore date and time pickers for session scheduling, simulate Addis Ababa University GPS coordinates, and manage attendee RSVP toggles."*
+
