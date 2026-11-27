@@ -69,7 +69,7 @@ Before integrating live services, we will add regression tests that exercise ses
 
 ## 5. Analyzer and Test Output
 
-These commands passed on the local milestone revision. The published `m1` tag still points to the earlier commit. Verify both commands on the final commit used for submission.
+These commands passed on the milestone code. A clean copy of the code commit also passed both commands. The signed disclosure update changes only documentation.
 
 ### `flutter analyze --fatal-infos`
 
