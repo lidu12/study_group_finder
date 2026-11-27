@@ -37,9 +37,9 @@ Study Group Finder, Milestone 1
 
 | Name | I wrote or reviewed and can explain these files | I entered no passwords, keys or personal data into an AI tool (yes / no) | Signature |
 |---|---|---|---|
-| Lidiya Aramde | `lib/main.dart`, `app_router.dart`, `scaffold_with_navbar.dart`, `lib/features/planner/`, `test/` | yes | Pending |
-| Tesnim Hussien | `login_registration_screen.dart`, `profile_courses_screen.dart` | Pending personal confirmation | Pending |
-| Ruth Zelalem | `find_groups_screen.dart` | Pending personal confirmation | Pending |
-| Tsion Bizuayehu | `create_session_screen.dart`, `session_details_screen.dart`, `home_screen.dart` | Pending personal confirmation | Pending |
+| Lidiya Aramde | `lib/main.dart`, `app_router.dart`, `scaffold_with_navbar.dart`, `lib/features/planner/`, `test/` | Yes | Lidiya Aramde |
+| Tesnim Hussien | `login_registration_screen.dart`, `profile_courses_screen.dart` | Yes | Tesnim Hussien |
+| Ruth Zelalem | `find_groups_screen.dart` | Yes | Ruth Zelalem |
+| Tsion Bizuayehu | `create_session_screen.dart`, `session_details_screen.dart`, `home_screen.dart` | Yes | Tsion Bizuayehu |
 
-Date pending team sign-off.
+Confirmations recorded on 27 November 2026.
