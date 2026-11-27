@@ -1,21 +1,31 @@
+// State integration drafted with OpenAI Codex. Team review pending.
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../sessions_provider.dart';
+import '../../../profile/presentation/profile_provider.dart';
+import '../../domain/study_session.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/mock_data/mock_seeds.dart';
 
-class CreateSessionScreen extends StatefulWidget {
+class CreateSessionScreen extends ConsumerStatefulWidget {
   const CreateSessionScreen({super.key});
 
   @override
-  State<CreateSessionScreen> createState() => _CreateSessionScreenState();
+  ConsumerState<CreateSessionScreen> createState() =>
+      _CreateSessionScreenState();
 }
 
-class _CreateSessionScreenState extends State<CreateSessionScreen> {
+class _CreateSessionScreenState extends ConsumerState<CreateSessionScreen> {
   final _formKey = GlobalKey<FormState>();
   final _topicController = TextEditingController();
-  final _locationController = TextEditingController(text: 'AAU 4 Kilo Campus Library, Study Hall');
-  
+  final _locationController = TextEditingController(
+    text: 'AAU 4 Kilo Campus Library, Study Hall',
+  );
+
   String _selectedCourse = 'SEng3112';
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 2));
   TimeOfDay _selectedTime = const TimeOfDay(hour: 14, minute: 0);
@@ -32,11 +42,14 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
   void _useCampusLocation() {
     setState(() {
       _useGps = true;
-      _locationController.text = 'AAU 4 Kilo Science Library (9.0353° N, 38.7628° E)';
+      _locationController.text =
+          'AAU 4 Kilo Science Library (9.0353° N, 38.7628° E)';
     });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Simulated AAU Campus GPS Location Attached! (9.0353° N, 38.7628° E)'),
+        content: Text(
+          'Simulated AAU Campus GPS Location Attached! (9.0353° N, 38.7628° E)',
+        ),
         backgroundColor: AppColors.primary,
         duration: Duration(seconds: 2),
       ),
@@ -48,24 +61,31 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
 
     final formattedDate =
         '${_selectedDate.year}-${_selectedDate.month.toString().padLeft(2, '0')}-${_selectedDate.day.toString().padLeft(2, '0')}';
-    final formattedTime = _selectedTime.format(context); 
+    final formattedTime = _selectedTime.format(context);
 
-    // Add session to in-memory state so it appears immediately on Home & Find Groups
-    MockSeeds.studySessions.insert(0, {
-      'id': 'sess_${DateTime.now().millisecondsSinceEpoch}',
-      'courseCode': _selectedCourse,
-      'topic': _topicController.text.trim(),
-      'date': formattedDate,
-      'startTime': formattedTime,
-      'endTime': '16:00',
-      'meetingPlace': _locationController.text.trim(),
-      'organizerName': MockSeeds.currentUser['name'],
-      'memberNames': [MockSeeds.currentUser['name']],
-      'isJoined': true,
-      'latitude': _useGps ? 9.0353 : null,
-      'longitude': _useGps ? 38.7628 : null,
-      'maxParticipants': _maxParticipants,
-    });
+    final organizerName = ref.read(profileProvider).name;
+    ref
+        .read(sessionsProvider.notifier)
+        .add(
+          StudySession(
+            id: 'sess_${DateTime.now().microsecondsSinceEpoch}',
+            courseCode: _selectedCourse,
+            topic: _topicController.text.trim(),
+            date: formattedDate,
+            startTime: formattedTime,
+            endTime: TimeOfDay(
+              hour: (_selectedTime.hour + 2) % 24,
+              minute: _selectedTime.minute,
+            ).format(context),
+            meetingPlace: _locationController.text.trim(),
+            organizerName: organizerName,
+            memberNames: [organizerName],
+            isJoined: true,
+            latitude: _useGps ? 9.0353 : null,
+            longitude: _useGps ? 38.7628 : null,
+            maxParticipants: _maxParticipants,
+          ),
+        );
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -74,15 +94,13 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
       ),
     );
 
-    context.pop();
+    context.go('/home');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Study Session'),
-      ),
+      appBar: AppBar(title: const Text('Create Study Session')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -99,10 +117,22 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                   prefixIcon: Icon(Icons.school_outlined),
                 ),
                 items: const [
-                  DropdownMenuItem(value: 'SEng3112', child: Text('SEng3112 - Mobile Applications')),
-                  DropdownMenuItem(value: 'SEng3121', child: Text('SEng3121 - Software Architecture')),
-                  DropdownMenuItem(value: 'CS3101', child: Text('CS3101 - Operating Systems')),
-                  DropdownMenuItem(value: 'SEng4131', child: Text('SEng4131 - Artificial Intelligence')),
+                  DropdownMenuItem(
+                    value: 'SEng3112',
+                    child: Text('SEng3112 - Mobile Applications'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'SEng3121',
+                    child: Text('SEng3121 - Software Architecture'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'CS3101',
+                    child: Text('CS3101 - Operating Systems'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'SEng4131',
+                    child: Text('SEng4131 - Artificial Intelligence'),
+                  ),
                 ],
                 onChanged: (val) {
                   if (val != null) setState(() => _selectedCourse = val);
@@ -139,15 +169,21 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                         const SizedBox(height: 8),
                         OutlinedButton.icon(
                           icon: const Icon(Icons.calendar_today, size: 18),
-                          label: Text('${_selectedDate.year}-${_selectedDate.month}-${_selectedDate.day}'),
+                          label: Text(
+                            '${_selectedDate.year}-${_selectedDate.month}-${_selectedDate.day}',
+                          ),
                           onPressed: () async {
                             final picked = await showDatePicker(
                               context: context,
                               initialDate: _selectedDate,
                               firstDate: DateTime.now(),
-                              lastDate: DateTime.now().add(const Duration(days: 60)),
+                              lastDate: DateTime.now().add(
+                                const Duration(days: 60),
+                              ),
                             );
-                            if (picked != null) setState(() => _selectedDate = picked);
+                            if (picked != null && mounted) {
+                              setState(() => _selectedDate = picked);
+                            }
                           },
                         ),
                       ],
@@ -168,7 +204,9 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                               context: context,
                               initialTime: _selectedTime,
                             );
-                            if (picked != null) setState(() => _selectedTime = picked);
+                            if (picked != null && mounted) {
+                              setState(() => _selectedTime = picked);
+                            }
                           },
                         ),
                       ],
@@ -197,7 +235,11 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                   hintText: 'Campus location or room number',
                   prefixIcon: const Icon(Icons.place_outlined),
                   suffixIcon: _useGps
-                      ? const Icon(Icons.gps_fixed, color: AppColors.primary, size: 20)
+                      ? const Icon(
+                          Icons.gps_fixed,
+                          color: AppColors.primary,
+                          size: 20,
+                        )
                       : null,
                 ),
                 validator: (value) {
@@ -207,7 +249,7 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20), 
+              const SizedBox(height: 20),
 
               // Max Attendees Stepper
               Row(
@@ -217,7 +259,10 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Max Attendees', style: AppTextStyles.h3),
-                      Text('Recommended size for focus: 3 - 6', style: AppTextStyles.caption),
+                      Text(
+                        'Recommended size for focus: 3 - 6',
+                        style: AppTextStyles.caption,
+                      ),
                     ],
                   ),
                   Row(
@@ -262,4 +307,3 @@ class _CreateSessionScreenState extends State<CreateSessionScreen> {
     );
   }
 }
-

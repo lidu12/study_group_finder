@@ -1,18 +1,25 @@
+// State integration drafted with OpenAI Codex. Team review pending.
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../auth_provider.dart';
+import '../../../profile/presentation/profile_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 
-class LoginRegistrationScreen extends StatefulWidget {
+class LoginRegistrationScreen extends ConsumerStatefulWidget {
   const LoginRegistrationScreen({super.key});
 
   @override
-  State<LoginRegistrationScreen> createState() =>
+  ConsumerState<LoginRegistrationScreen> createState() =>
       _LoginRegistrationScreenState();
 }
 
-class _LoginRegistrationScreenState extends State<LoginRegistrationScreen> {
+class _LoginRegistrationScreenState
+    extends ConsumerState<LoginRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLogin = true;
   bool _obscurePassword = true;
@@ -47,6 +54,19 @@ class _LoginRegistrationScreenState extends State<LoginRegistrationScreen> {
 
   void _submit() {
     if (_formKey.currentState!.validate()) {
+      final email = _emailController.text.trim();
+      if (!_isLogin) {
+        ref
+            .read(profileProvider.notifier)
+            .updateIdentity(
+              name: _nameController.text.trim(),
+              email: email,
+              studentId: _studentIdController.text.trim(),
+              department: _selectedDepartment,
+              yearOfStudy: _selectedYear,
+            );
+      }
+      ref.read(authProvider.notifier).signIn(email);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(

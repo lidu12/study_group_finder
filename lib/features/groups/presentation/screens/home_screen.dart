@@ -1,17 +1,27 @@
+// State integration drafted with OpenAI Codex. Team review pending.
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../groups_provider.dart';
+import '../../../profile/presentation/profile_provider.dart';
+import '../../../sessions/presentation/sessions_provider.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/mock_data/mock_seeds.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final user = MockSeeds.currentUser;
-    final myGroups = MockSeeds.studyGroups.where((g) => g['isMember'] == true).toList();
-    final upcomingSessions = MockSeeds.studySessions;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(profileProvider);
+    final myGroups = ref
+        .watch(groupsProvider)
+        .where((group) => group.isMember)
+        .toList();
+    final upcomingSessions = ref.watch(sessionsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -44,7 +54,11 @@ class HomeScreen extends StatelessWidget {
                   CircleAvatar(
                     radius: 28,
                     backgroundColor: Colors.white.withValues(alpha: 0.2),
-                    child: const Icon(Icons.person, color: Colors.white, size: 32),
+                    child: const Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 32,
+                    ),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -52,13 +66,15 @@ class HomeScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Welcome back, ${user['name']}!',
+                          'Welcome back, ${user.name}!',
                           style: AppTextStyles.h2.copyWith(color: Colors.white),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${user['department']} • Year ${user['yearOfStudy']}',
-                          style: AppTextStyles.caption.copyWith(color: Colors.white70),
+                          '${user.department} • Year ${user.yearOfStudy}',
+                          style: AppTextStyles.caption.copyWith(
+                            color: Colors.white70,
+                          ),
                         ),
                       ],
                     ),
@@ -101,13 +117,16 @@ class HomeScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.primary.withValues(alpha: 0.08),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            group['courseCode'],
+                            group.courseCode,
                             style: AppTextStyles.caption.copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w700,
@@ -115,17 +134,21 @@ class HomeScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          group['name'],
+                          group.name,
                           style: AppTextStyles.h3.copyWith(fontSize: 15),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         Row(
                           children: [
-                            const Icon(Icons.people_alt_outlined, size: 16, color: AppColors.textSecondary),
+                            const Icon(
+                              Icons.people_alt_outlined,
+                              size: 16,
+                              color: AppColors.textSecondary,
+                            ),
                             const SizedBox(width: 4),
                             Text(
-                              '${group['memberCount']} classmates',
+                              '${group.memberCount} classmates',
                               style: AppTextStyles.caption,
                             ),
                           ],
@@ -158,7 +181,7 @@ class HomeScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final session = upcomingSessions[index];
                 return InkWell(
-                  onTap: () => context.go('/sessions/${session['id']}'),
+                  onTap: () => context.push('/sessions/${session.id}'),
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
                     padding: const EdgeInsets.all(16),
@@ -174,13 +197,18 @@ class HomeScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
                               decoration: BoxDecoration(
-                                color: AppColors.secondary.withValues(alpha: 0.1),
+                                color: AppColors.secondary.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
-                                session['courseCode'],
+                                session.courseCode,
                                 style: AppTextStyles.caption.copyWith(
                                   color: AppColors.secondary,
                                   fontWeight: FontWeight.w700,
@@ -188,24 +216,32 @@ class HomeScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '${session['date']} at ${session['startTime']}',
-                              style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600),
+                              '${session.date} at ${session.startTime}',
+                              style: AppTextStyles.caption.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          session['topic'],
+                          session.isJoined
+                              ? '${session.topic} (Joined)'
+                              : session.topic,
                           style: AppTextStyles.h3,
                         ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(Icons.location_on_outlined, size: 16, color: AppColors.textSecondary),
+                            const Icon(
+                              Icons.location_on_outlined,
+                              size: 16,
+                              color: AppColors.textSecondary,
+                            ),
                             const SizedBox(width: 4),
                             Expanded(
                               child: Text(
-                                session['meetingPlace'],
+                                session.meetingPlace,
                                 style: AppTextStyles.caption,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -222,7 +258,7 @@ class HomeScreen extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go('/sessions/create'),
+        onPressed: () => context.push('/sessions/create'),
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),

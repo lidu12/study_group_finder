@@ -1,47 +1,37 @@
+// State integration drafted with OpenAI Codex. Team review pending.
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../groups_provider.dart';
+import '../../../profile/presentation/profile_provider.dart';
+import '../../domain/study_group.dart';
+
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
-import '../../../../core/mock_data/mock_seeds.dart';
 
-class FindGroupsScreen extends StatefulWidget {
+class FindGroupsScreen extends ConsumerStatefulWidget {
   const FindGroupsScreen({super.key});
 
   @override
-  State<FindGroupsScreen> createState() => _FindGroupsScreenState();
+  ConsumerState<FindGroupsScreen> createState() => _FindGroupsScreenState();
 }
 
-class _FindGroupsScreenState extends State<FindGroupsScreen> {
+class _FindGroupsScreenState extends ConsumerState<FindGroupsScreen> {
   String _selectedCourse = 'All';
   String _searchQuery = '';
-  late List<Map<String, dynamic>> _groups;
-
-  @override
-  void initState() {
-    super.initState();
-    _groups = List<Map<String, dynamic>>.from(
-      MockSeeds.studyGroups.map((g) => Map<String, dynamic>.from(g)),
-    );
-  }
-
-  void _toggleJoin(int index) {
-    setState(() {
-      final isMember = _groups[index]['isMember'] as bool;
-      _groups[index]['isMember'] = !isMember;
-      _groups[index]['memberCount'] =
-          (_groups[index]['memberCount'] as int) + (isMember ? -1 : 1);
-    });
+  void _toggleJoin(StudyGroup group) {
+    ref.read(groupsProvider.notifier).toggleMembership(group.id);
+    final joined = !group.isMember;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          _groups[index]['isMember']
-              ? 'Successfully joined ${_groups[index]['name']}!'
-              : 'You left ${_groups[index]['name']}.',
+          joined
+              ? 'Successfully joined ${group.name}!'
+              : 'You left ${group.name}.',
         ),
-        backgroundColor: _groups[index]['isMember']
-            ? AppColors.success
-            : AppColors.textSecondary,
+        backgroundColor: joined ? AppColors.success : AppColors.textSecondary,
         duration: const Duration(seconds: 2),
       ),
     );
@@ -99,21 +89,22 @@ class _FindGroupsScreenState extends State<FindGroupsScreen> {
             ElevatedButton(
               onPressed: () {
                 if (nameCtrl.text.trim().isNotEmpty) {
-                  setState(() {
-                    _groups.insert(0, {
-                      'id': 'grp_${DateTime.now().millisecondsSinceEpoch}',
-                      'name': nameCtrl.text.trim(),
-                      'courseCode': courseCode,
-                      'courseName': 'Addis Ababa University Course',
-                      'description': descCtrl.text.trim().isNotEmpty
-                          ? descCtrl.text.trim()
-                          : 'Collaborative student study group for $courseCode.',
-                      'creatorId': 'usr_002',
-                      'creatorName': 'Ruth Zelalem',
-                      'memberCount': 1,
-                      'isMember': true,
-                    });
-                  });
+                  ref
+                      .read(groupsProvider.notifier)
+                      .add(
+                        StudyGroup(
+                          id: 'grp_${DateTime.now().microsecondsSinceEpoch}',
+                          name: nameCtrl.text.trim(),
+                          courseCode: courseCode,
+                          courseName: 'Addis Ababa University Course',
+                          description: descCtrl.text.trim().isNotEmpty
+                              ? descCtrl.text.trim()
+                              : 'Collaborative student study group for $courseCode.',
+                          creatorName: ref.read(profileProvider).name,
+                          memberCount: 1,
+                          isMember: true,
+                        ),
+                      );
                   Navigator.pop(ctx);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -133,15 +124,15 @@ class _FindGroupsScreenState extends State<FindGroupsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredGroups = _groups.where((g) {
+    final filteredGroups = ref.watch(groupsProvider).where((g) {
       final matchesCourse =
-          _selectedCourse == 'All' || g['courseCode'] == _selectedCourse;
+          _selectedCourse == 'All' || g.courseCode == _selectedCourse;
       final query = _searchQuery.toLowerCase();
       final matchesQuery =
           _searchQuery.isEmpty ||
-          g['name'].toString().toLowerCase().contains(query) ||
-          g['courseCode'].toString().toLowerCase().contains(query) ||
-          g['description'].toString().toLowerCase().contains(query);
+          g.name.toLowerCase().contains(query) ||
+          g.courseCode.toLowerCase().contains(query) ||
+          g.description.toLowerCase().contains(query);
       return matchesCourse && matchesQuery;
     }).toList();
 
@@ -217,7 +208,7 @@ class _FindGroupsScreenState extends State<FindGroupsScreen> {
                     separatorBuilder: (_, _) => const SizedBox(height: 12),
                     itemBuilder: (context, index) {
                       final group = filteredGroups[index];
-                      final isMember = group['isMember'] as bool;
+                      final isMember = group.isMember;
                       return Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
@@ -243,7 +234,7 @@ class _FindGroupsScreenState extends State<FindGroupsScreen> {
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
-                                    group['courseCode'],
+                                    group.courseCode,
                                     style: AppTextStyles.caption.copyWith(
                                       color: AppColors.primary,
 
@@ -260,7 +251,7 @@ class _FindGroupsScreenState extends State<FindGroupsScreen> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      '${group['memberCount']} members',
+                                      '${group.memberCount} members',
                                       style: AppTextStyles.caption,
                                     ),
                                   ],
@@ -268,10 +259,10 @@ class _FindGroupsScreenState extends State<FindGroupsScreen> {
                               ],
                             ),
                             const SizedBox(height: 8),
-                            Text(group['name'], style: AppTextStyles.h3),
+                            Text(group.name, style: AppTextStyles.h3),
                             const SizedBox(height: 6),
                             Text(
-                              group['description'],
+                              group.description,
                               style: AppTextStyles.bodySecondary,
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -281,12 +272,11 @@ class _FindGroupsScreenState extends State<FindGroupsScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Created by ${group['creatorName']}',
+                                  'Created by ${group.creatorName}',
                                   style: AppTextStyles.caption,
                                 ),
                                 ElevatedButton(
-                                  onPressed: () =>
-                                      _toggleJoin(_groups.indexOf(group)),
+                                  onPressed: () => _toggleJoin(group),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: isMember
                                         ? AppColors.surfaceVariant

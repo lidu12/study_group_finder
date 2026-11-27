@@ -1,48 +1,45 @@
-# AI Usage Disclosure – Study Group Finder
+# AI usage disclosure
 
-**Course / Project:** Study Group Finder  
-**Target Milestone:** Milestone 1  
-**Date:** November 2026  
-**Group:** Lidiya Aramde, Ruth Zelalem, Tesnim Hussien, Tsion Bizuayehu  
+Study Group Finder, Milestone 1
 
----
+## Tools used
 
-## 1. Compliance Statement
-
-In accordance with Section 12 of `PROPOSAL.md` and the course AI Policy, this document discloses and details how artificial intelligence tools were utilized during the development of Milestone 1.
-
-All AI-suggested code, structures, and documentation were carefully inspected, understood, tested, and integrated by the team members. No sensitive university credentials, API keys, or private data were submitted to AI models.
-
----
-
-## 2. Tools & Models Used
-
-- **Google DeepMind Antigravity / Gemini CLI:** Assisted with architectural project scaffolding, Flutter 3.27+ API deprecation migration, and drafting unit test structures.
-
----
-
-## 3. Scope of AI Usage
-
-| Category | Description of Usage | Human Verification |
+| Tool | Version / model | Used for |
 |---|---|---|
-| **Architecture & Structure** | Guided the setup of a clean **feature-first** modular layout (`lib/features/{auth,groups,planner,profile,sessions}`) and Riverpod state management. | The team verified that directory structure aligns with course specifications. |
-| **Flutter 3.27+ Deprecations** | Assisted in upgrading deprecated methods (e.g. replacing `.withOpacity()` with `.withValues(alpha: ...)`, `CardTheme` with `CardThemeData`, and `DropdownButtonFormField.value` with `initialValue`). | Code verified by running `flutter analyze --fatal-infos` with 0 warnings. |
-| **Unit & Widget Testing** | Assisted in generating mock seeds for Addis Ababa University courses, groups, and testing Riverpod `AsyncNotifier` async state. | All tests executed with `flutter test` and verified passing. |
-| **Documentation & Guides** | Assisted in formatting beginner-friendly Git instructions and Markdown summaries for team coordination. | Reviewed by group coordinator Lidiya Aramde. |
+| Antigravity | Gemini | Assisted with Flutter architecture boilerplate, planner structure, and test examples |
+| ChatGPT and Claude | Web assistants (Tesnim, Ruth, Tsion) | Explaining Flutter widgets, form validation, search filters, and date/time picker patterns |
+| OpenAI Codex | Codex | Auditing `MILESTONE.md` against the tagged commit and verifying Flutter check outputs |
 
----
+## What was generated and where
 
-## 4. Individual Member Declarations
+| File / function | Member | AI-use level | What the tool helped with | What we wrote and changed | How we verified it |
+|---|---|---|---|---|---|
+| `lib/core/`, `lib/features/planner/` | Lidiya | 2–3 (Boilerplate & verify) | Initial GoRouter shell and planner state structure | Configured all 7 proposal routes, theme colors, `MockSeeds`, and fixed deprecated APIs (`CardThemeData`, `withValues`, `initialValue`) | Ran `flutter analyze --fatal-infos` (0 issues) and `flutter test` |
+| `test/widget_test.dart`, `test/features/planner/` | Lidiya | 2 (Examples & adapt) | Example widget and unit test structure | Wrote assertions for Home/Planner/Find Groups navigation and `PlannerController`, added `ProviderScope`, and fixed initial-state assertion | Ran `flutter test` (8 passing tests) |
+| `login_registration_screen.dart`, `profile_courses_screen.dart` | Tesnim | 2 (Patterns & adapt) | `Form` validation and `showTimePicker` bottom sheet examples | Implemented AAU email/ID (`UGR/2799/16`) validation, department/year dropdowns, course chips, and weekly availability UI | Ran `flutter test` locally and reviewed via PR #4 |
+| `find_groups_screen.dart` | Ruth | 2 (Patterns & adapt) | Search filtering and `ChoiceChip` layout examples | Connected real-time search, AAU course filters (`SEng3112`, `CS3101`), join/leave state, and create-group dialog | Ran `flutter test` locally and reviewed via PR #3 |
+| `create_session_screen.dart`, `session_details_screen.dart` | Tsion | 2 (Patterns & adapt) | `showDatePicker`/`showTimePicker` and RSVP button examples | Built session creation, AAU 4 Kilo Campus GPS simulation (`9.0353° N, 38.7628° E`), and `/sessions/:id` RSVP roster | Ran `flutter test` locally and reviewed via PR #2 |
+| `MILESTONE.md`, `AI_USAGE.md` | Lidiya | 1–2 (Audit & polish) | Audited report consistency against the tagged commit | Documented team contributions, PR review matrix, self-scores, and pasted actual analyzer/test outputs | Verified paths, git tags, and command outputs locally |
+| New or changed model, repository, provider, and screen code under `lib/features/`, plus `test/milestone_state_test.dart` and Freezed dependencies | Lidiya | 3 (Draft and verify) | Codex drafted the shared Riverpod state, in-memory repositories, Freezed models, and regression tests | Human edits and review pending | Codex ran the analyzer and all 11 tests successfully. Lidiya to record her own checks before sign-off |
 
-- **Lidiya Aramde (`lidu12` - Coordinator):**  
-  *"I utilized AI assistance to establish the GoRouter navigation shell with persistent bottom navigation tabs, configure the Riverpod AI Study Planner architecture, and format Git collaboration guides for my teammates."*
+## Which tasks did we do without an assistant first?
 
-- **Tesnim Hussien (`temihuss`):**  
-  *"I used AI assistance to understand Flutter Form validation best practices, implement the AAU student ID and course selection chips, and configure interactive time slot pickers in the profile screen."*
+- **Project & Proposal Design:** Defined the AAU Study Group Finder problem, potential user interview, 7 user stories, and 7-screen flow in `PROPOSAL.md`.
+- **Repository & Team Workflow:** Created the GitHub repository, `project.yaml`, `proposal` tag, feature branches, Pull Requests, and peer reviews across all 4 members.
+- **AAU Domain Data & Verification:** Defined realistic AAU course codes, student IDs, and 4 Kilo Campus meeting places in `MockSeeds`, and verified every merge with `flutter analyze --fatal-infos` and `flutter test`.
 
-- **Ruth Zelalem (`ruthzelalem65-dotcom`):**  
-  *"I used AI assistance to learn how to implement real-time text searching and course filter chips in Flutter, as well as designing modal bottom sheets for study group details."*
+## Problems found in AI output
 
-- **Tsion Bizuayehu (`tsion875`):**  
-  *"I used AI assistance to explore date and time pickers for session scheduling, simulate Addis Ababa University GPS coordinates, and manage attendee RSVP toggles."*
+- Lidiya caught and fixed deprecated Flutter 3.27+ APIs (`CardThemeData`, `withValues`, `initialValue`), added a missing `ProviderScope` in `widget_test.dart`, corrected the initial-state assertion in `planner_controller_test.dart`, and updated `MILESTONE.md` so it accurately describes our handwritten models and `StateNotifier` controller.
+- Tesnim, Ruth, and Tsion reported none.
 
+## Individual declaration
+
+| Name | I wrote or reviewed and can explain these files | I entered no passwords, keys or personal data into an AI tool (yes / no) | Signature |
+|---|---|---|---|
+| Lidiya Aramde | `lib/main.dart`, `app_router.dart`, `scaffold_with_navbar.dart`, `lib/features/planner/`, `test/` | yes | Pending |
+| Tesnim Hussien | `login_registration_screen.dart`, `profile_courses_screen.dart` | Pending personal confirmation | Pending |
+| Ruth Zelalem | `find_groups_screen.dart` | Pending personal confirmation | Pending |
+| Tsion Bizuayehu | `create_session_screen.dart`, `session_details_screen.dart`, `home_screen.dart` | Pending personal confirmation | Pending |
+
+Date pending team sign-off.
