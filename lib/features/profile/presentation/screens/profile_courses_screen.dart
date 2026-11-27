@@ -1,3 +1,10 @@
+// State integration drafted with OpenAI Codex. Team review pending.
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../profile_provider.dart';
+import '../../../auth/presentation/auth_provider.dart';
+import '../../domain/student_profile.dart';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -5,42 +12,20 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_text_styles.dart';
 import '../../../../core/mock_data/mock_seeds.dart';
 
-class ProfileCoursesScreen extends StatefulWidget {
+class ProfileCoursesScreen extends ConsumerStatefulWidget {
   const ProfileCoursesScreen({super.key});
 
   @override
-  State<ProfileCoursesScreen> createState() => _ProfileCoursesScreenState();
+  ConsumerState<ProfileCoursesScreen> createState() =>
+      _ProfileCoursesScreenState();
 }
 
-class _ProfileCoursesScreenState extends State<ProfileCoursesScreen> {
-  late Set<String> _enrolledCourseIds;
-  late List<Map<String, dynamic>> _availability;
-
-  @override
-  void initState() {
-    super.initState();
-    _enrolledCourseIds = Set<String>.from(
-      MockSeeds.currentUser['enrolledCourseIds'] as List,
-    );
-    _availability = List<Map<String, dynamic>>.from(
-      MockSeeds.currentUser['availability'] as List,
-    );
-  }
-
-  void _toggleCourse(String courseId) {
-    setState(() {
-      if (_enrolledCourseIds.contains(courseId)) {
-        _enrolledCourseIds.remove(courseId);
-      } else {
-        _enrolledCourseIds.add(courseId);
-      }
-    });
-  }
+class _ProfileCoursesScreenState extends ConsumerState<ProfileCoursesScreen> {
+  void _toggleCourse(String courseId) =>
+      ref.read(profileProvider.notifier).toggleCourse(courseId);
 
   void _removeSlot(int index) {
-    setState(() {
-      _availability.removeAt(index);
-    });
+    ref.read(profileProvider.notifier).removeAvailability(index);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Availability slot removed'),
@@ -172,14 +157,15 @@ class _ProfileCoursesScreenState extends State<ProfileCoursesScreen> {
                   // Add Slot Confirm Button
                   ElevatedButton(
                     onPressed: () {
-                      setState(() {
-                        _availability.add({
-                          'id': 'slot_${DateTime.now().millisecondsSinceEpoch}',
-                          'dayOfWeek': selectedDay,
-                          'startTime': formatTime(startTime),
-                          'endTime': formatTime(endTime),
-                        });
-                      });
+                      ref
+                          .read(profileProvider.notifier)
+                          .addAvailability(
+                            AvailabilitySlot(
+                              dayOfWeek: selectedDay,
+                              startTime: formatTime(startTime),
+                              endTime: formatTime(endTime),
+                            ),
+                          );
                       Navigator.pop(sheetContext);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
@@ -203,17 +189,23 @@ class _ProfileCoursesScreenState extends State<ProfileCoursesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = MockSeeds.currentUser;
+    final user = ref.watch(profileProvider);
+    final enrolledCourseIds = user.enrolledCourseIds;
+    final availability = user.availability;
     final allCourses = MockSeeds.courses;
+    final signedIn = ref.watch(authProvider) != null;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile & Courses'),
         actions: [
           IconButton(
-            tooltip: 'Logout',
+            tooltip: signedIn ? 'Logout' : 'Sign in',
             icon: const Icon(Icons.logout),
-            onPressed: () => context.go('/login'),
+            onPressed: () {
+              ref.read(authProvider.notifier).signOut();
+              context.go('/login');
+            },
           ),
         ],
       ),
@@ -242,10 +234,10 @@ class _ProfileCoursesScreenState extends State<ProfileCoursesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(user['name'] as String, style: AppTextStyles.h2),
+                        Text(user.name, style: AppTextStyles.h2),
                         const SizedBox(height: 4),
-                        const Text(
-                          'ID: UGR/2799/16',
+                        Text(
+                          'ID: ${user.studentId}',
                           style: TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.bold,
@@ -253,13 +245,10 @@ class _ProfileCoursesScreenState extends State<ProfileCoursesScreen> {
                           ),
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          user['email'] as String,
-                          style: AppTextStyles.bodySecondary,
-                        ),
+                        Text(user.email, style: AppTextStyles.bodySecondary),
                         const SizedBox(height: 2),
                         Text(
-                          '${user['department']} • Year ${user['yearOfStudy']}',
+                          '${user.department} • Year ${user.yearOfStudy}',
                           style: AppTextStyles.caption,
                         ),
                       ],
@@ -285,7 +274,7 @@ class _ProfileCoursesScreenState extends State<ProfileCoursesScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    '${_enrolledCourseIds.length} Selected',
+                    '${enrolledCourseIds.length} Selected',
                     style: const TextStyle(
                       color: AppColors.primary,
                       fontWeight: FontWeight.bold,
@@ -305,7 +294,7 @@ class _ProfileCoursesScreenState extends State<ProfileCoursesScreen> {
               spacing: 8,
               runSpacing: 8,
               children: allCourses.map((c) {
-                final isEnrolled = _enrolledCourseIds.contains(c['id']);
+                final isEnrolled = enrolledCourseIds.contains(c['id']);
                 return FilterChip(
                   label: Text('${c['courseCode']} - ${c['courseName']}'),
                   selected: isEnrolled,
@@ -330,7 +319,7 @@ class _ProfileCoursesScreenState extends State<ProfileCoursesScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            if (_availability.isEmpty)
+            if (availability.isEmpty)
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -351,10 +340,10 @@ class _ProfileCoursesScreenState extends State<ProfileCoursesScreen> {
               ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: _availability.length,
+                itemCount: availability.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
-                  final slot = _availability[index];
+                  final slot = availability[index];
                   return Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 14,
@@ -375,7 +364,7 @@ class _ProfileCoursesScreenState extends State<ProfileCoursesScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            '${slot['dayOfWeek']}: ${slot['startTime']} - ${slot['endTime']}',
+                            '${slot.dayOfWeek}: ${slot.startTime} - ${slot.endTime}',
                             style: AppTextStyles.body,
                           ),
                         ),

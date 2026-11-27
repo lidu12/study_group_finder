@@ -1,17 +1,19 @@
-class StudyPlanItem {
-  final int order;
-  final int durationMinutes;
-  final String title;
-  final String description;
-  final bool isBreak;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  const StudyPlanItem({
-    required this.order,
-    required this.durationMinutes,
-    required this.title,
-    required this.description,
-    this.isBreak = false,
-  });
+part 'study_plan.freezed.dart';
+
+// Drafted with OpenAI Codex. Team review pending.
+@Freezed(fromJson: false, toJson: false)
+abstract class StudyPlanItem with _$StudyPlanItem {
+  const StudyPlanItem._();
+
+  const factory StudyPlanItem({
+    required int order,
+    required int durationMinutes,
+    required String title,
+    required String description,
+    @Default(false) bool isBreak,
+  }) = _StudyPlanItem;
 
   Map<String, dynamic> toJson() => {
     'order': order,
@@ -30,39 +32,14 @@ class StudyPlanItem {
   );
 }
 
-class StudyPlan {
-  final String id;
-  final String topic;
-  final double totalHours;
-  final String goal;
-  final List<StudyPlanItem> items;
-  final DateTime createdAt;
-
-  const StudyPlan({
-    required this.id,
-    required this.topic,
-    required this.totalHours,
-    required this.goal,
-    required this.items,
-    required this.createdAt,
-  });
-
-  StudyPlan copyWith({
-    String? id,
-    String? topic,
-    double? totalHours,
-    String? goal,
-    List<StudyPlanItem>? items,
-    DateTime? createdAt,
-  }) {
-    return StudyPlan(
-      id: id ?? this.id,
-      topic: topic ?? this.topic,
-      totalHours: totalHours ?? this.totalHours,
-      goal: goal ?? this.goal,
-      items: items ?? this.items,
-      createdAt: createdAt ?? this.createdAt,
-    );
-  }
+@freezed
+abstract class StudyPlan with _$StudyPlan {
+  const factory StudyPlan({
+    required String id,
+    required String topic,
+    required double totalHours,
+    required String goal,
+    required List<StudyPlanItem> items,
+    required DateTime createdAt,
+  }) = _StudyPlan;
 }
-
